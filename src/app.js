@@ -7,9 +7,34 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
 module.exports = (db) => {
-    app.get('/health', (req, res) => res.send('Healthy'));
+
+    app.get('/health', (req, res) => {
+        // #swagger.tags = ['health']
+        // #swagger.description = 'To get current service health status'
+
+        res.send('Healthy')
+    });
 
     app.post('/rides', jsonParser, (req, res) => {
+        /*
+         #swagger.tags = ['ride']
+         #swagger.description = 'To update information of current rides'
+         #swagger.parameters['createRide'] = {
+           in: 'body',
+           description: 'Create new ride payload',
+           required: true,
+           schema: { $ref: "#/definitions/CreateRide" }
+         }
+         #swagger.responses[200] = {
+                schema: { $ref: "#/definitions/CreateRideResponse" },
+                description: 'Success create rider response.'
+            },
+         #swagger.responses[500] = {
+                 schema: { $ref: "#/definitions/Error" },
+                 description: 'Internal server error.'
+         }
+        */
+
         const startLatitude = Number(req.body.start_lat);
         const startLongitude = Number(req.body.start_long);
         const endLatitude = Number(req.body.end_lat);
@@ -77,6 +102,19 @@ module.exports = (db) => {
     });
 
     app.get('/rides', (req, res) => {
+        /*
+         #swagger.tags = ['ride']
+         #swagger.description = 'To retrieve information about multiple rides'
+         #swagger.responses[200] = {
+                schema: { $ref: "#/definitions/RidesResponse" },
+                description: 'Success get list of rides.'
+            },
+         #swagger.responses[500] = {
+                 schema: { $ref: "#/definitions/Error" },
+                 description: 'Internal server error.'
+         }
+        */
+
         db.all('SELECT * FROM Rides', function (err, rows) {
             if (err) {
                 return res.send({
@@ -86,7 +124,7 @@ module.exports = (db) => {
             }
 
             if (rows.length === 0) {
-                return res.send({
+                return res.status(404).send({
                     error_code: 'RIDES_NOT_FOUND_ERROR',
                     message: 'Could not find any rides'
                 });
@@ -97,6 +135,22 @@ module.exports = (db) => {
     });
 
     app.get('/rides/:id', (req, res) => {
+        /*
+         #swagger.tags = ['ride']
+         #swagger.description = 'To retrieve information about specific rides'
+         #swagger.responses[200] = {
+                schema: { $ref: "#/definitions/RideResponse" },
+                description: 'Success get list of rides.'
+            },
+         #swagger.responses[404] = {
+                schema: { $ref: "#/definitions/Error" },
+                description: 'Ride not found.'
+            },
+         #swagger.responses[500] = {
+                 schema: { $ref: "#/definitions/Error" },
+                 description: 'Internal server error.'
+         }
+        */
         db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function (err, rows) {
             if (err) {
                 return res.send({
@@ -106,7 +160,7 @@ module.exports = (db) => {
             }
 
             if (rows.length === 0) {
-                return res.send({
+                return res.status(404).send({
                     error_code: 'RIDES_NOT_FOUND_ERROR',
                     message: 'Could not find any rides'
                 });

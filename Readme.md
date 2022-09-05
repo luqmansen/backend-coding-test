@@ -9,7 +9,8 @@ The goal of these exercises are to assess your proficiency in software engineeri
 3. Run `npm install`
 4. Run `npm test`
 5. Run `npm start`
-6. Hit the server to test health `curl localhost:8010/health` and expect a `200` response 
+6. Run `npm gen-doc` to generate swagger doc. Generated page can be viewed in `localhost:8010/docs`
+7. Hit the server to test health `curl localhost:8010/health` and expect a `200` response 
 
 ## Tasks
 
