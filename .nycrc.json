@@ -1,0 +1,14 @@
+{
+  "lines": 80,
+  "statements": 80,
+  "functions": 80,
+  "branches": 80,
+  "reporter": [
+    "lcov",
+    "text-summary"
+  ],
+  "extension": [
+    ".jsx"
+  ],
+  "check-coverage": true
+}
