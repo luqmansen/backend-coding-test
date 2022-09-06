@@ -7,9 +7,10 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "eslint --fix ./*.js && mocha tests",
     "start": "node index.js",
-    "gen-doc": "node swagger.js"
+    "gen-doc": "node swagger.js",
+    "test": "eslint --fix ./*.js && mocha tests",
+    "coverage": "nyc npm run test"
   },
   "keywords": [
     "Xendit"

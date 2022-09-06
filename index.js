@@ -1,17 +1,16 @@
 'use strict'
 
-require('dotenv').config();
+require('dotenv').config()
 const port = process.env.PORT
 
 const sqlite3 = require('sqlite3').verbose()
 const db = new sqlite3.Database(':memory:')
 const logger = require('./src/logger')
 
-const buildSchemas = require('./src/schemas')
-
+const { migrateUp } = require('./src/schemas')
 
 db.serialize(() => {
-  buildSchemas(db)
+  migrateUp(db)
 
   const app = require('./src/app')(db)
 
