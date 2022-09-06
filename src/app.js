@@ -87,7 +87,7 @@ module.exports = (db) => {
         
         const result = db.run('INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)', values, function (err) {
             if (err) {
-                logger.error(err)
+                logger.error(err.message)
                 return res.status(500).send({
                     error_code: 'SERVER_ERROR',
                     message: 'Unknown error'
@@ -96,7 +96,7 @@ module.exports = (db) => {
 
             db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, function (err, rows) {
                 if (err) {
-                    logger.error(err)
+                    logger.error(err.message)
                     return res.status(500).send({
                         error_code: 'SERVER_ERROR',
                         message: 'Unknown error'
@@ -122,8 +122,14 @@ module.exports = (db) => {
          }
         */
 
-        db.all('SELECT * FROM Rides', function (err, rows) {
-            if (err) {
+        const limit = req.query.perPage || 10
+        const offset = req.query.pageNo || 0
+        const query = `SELECT * FROM Rides LIMIT ${limit} OFFSET ${offset}`
+        logger.debug(query)
+
+        db.all(query, function (err, rows) {
+            if (err){
+                logger.error(err.message)
                 return res.status(500).send({
                     error_code: 'SERVER_ERROR',
                     message: 'Unknown error'
@@ -160,6 +166,7 @@ module.exports = (db) => {
         */
         db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function (err, rows) {
             if (err) {
+                logger.error(err.message)
                 return res.send({
                     error_code: 'SERVER_ERROR',
                     message: 'Unknown error'

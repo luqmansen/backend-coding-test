@@ -50,16 +50,22 @@
         ],
         "responses": {
           "200": {
-            "description": "Success create rider response.",
             "schema": {
               "$ref": "#/definitions/CreateRideResponse"
-            }
+            },
+            "description": "Success create rider response."
+          },
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "500": {
+            "description": "Internal server error.",
             "schema": {
               "$ref": "#/definitions/Error"
-            },
-            "description": "Internal server error."
+            }
           }
         }
       },
@@ -68,7 +74,18 @@
           "ride"
         ],
         "description": "To retrieve information about multiple rides",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "perPage",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success get list of rides.",
@@ -80,10 +97,10 @@
             "description": "Not Found"
           },
           "500": {
+            "description": "Internal server error.",
             "schema": {
               "$ref": "#/definitions/Error"
-            },
-            "description": "Internal server error."
+            }
           }
         }
       }
