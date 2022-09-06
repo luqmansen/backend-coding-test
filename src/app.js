@@ -5,8 +5,13 @@ const app = express();
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
+const logger = require('./logger')
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('../swagger.json')
 
 module.exports = (db) => {
+
+    app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
     app.get('/health', (req, res) => {
         // #swagger.tags = ['health']
@@ -82,6 +87,7 @@ module.exports = (db) => {
         
         const result = db.run('INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)', values, function (err) {
             if (err) {
+                logger.error(err)
                 return res.send({
                     error_code: 'SERVER_ERROR',
                     message: 'Unknown error'
@@ -90,6 +96,7 @@ module.exports = (db) => {
 
             db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, function (err, rows) {
                 if (err) {
+                    logger.error(err)
                     return res.send({
                         error_code: 'SERVER_ERROR',
                         message: 'Unknown error'
