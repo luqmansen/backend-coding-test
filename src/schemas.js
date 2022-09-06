@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = (db) => {
+const migrateUp = (db) => {
     const createRideTableSchema = `
         CREATE TABLE Rides
         (
@@ -20,3 +20,10 @@ module.exports = (db) => {
 
     return db;
 };
+
+const migrateDown = (db) => {
+    db.run("DROP TABLE RIDES")
+}
+
+module.exports = {migrateUp, migrateDown}
+

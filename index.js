@@ -1,21 +1,18 @@
 'use strict'
 
-const port = 8010
+require('dotenv').config()
+const port = process.env.PORT
 
 const sqlite3 = require('sqlite3').verbose()
 const db = new sqlite3.Database(':memory:')
+const logger = require('./src/logger')
 
-const buildSchemas = require('./src/schemas')
-
-const swaggerUi = require('swagger-ui-express')
-const swaggerFile = require('./swagger.json')
+const { migrateUp } = require('./src/schemas')
 
 db.serialize(() => {
-  buildSchemas(db)
+  migrateUp(db)
 
   const app = require('./src/app')(db)
 
-  app.listen(port, () => console.log(`App started and listening on port ${port}`))
-
-  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+  app.listen(port, () => logger.info(`App started and listening on port ${port}`))
 })
