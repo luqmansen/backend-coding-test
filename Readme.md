@@ -1,4 +1,4 @@
-# Xendit Coding Exercise
+# Xendit Coding Exercise [![build](https://github.com/luqmansen/backend-coding-test/actions/workflows/ci.yaml/badge.svg)](https://github.com/luqmansen/backend-coding-test/actions/workflows/ci.yaml)
 
 The goal of these exercises are to assess your proficiency in software engineering that is related to the daily work that we do at Xendit. Please follow the instructions below to complete the assessment.
 

@@ -8,6 +8,7 @@ let db = new sqlite3.Database(':memory:');
 const app = require('../src/app')(db);
 const {migrateUp, migrateDown} = require('../src/schemas');
 const assert = require("assert");
+const async = require("async");
 
 describe('API tests', () => {
     beforeEach((done) => {
@@ -109,6 +110,34 @@ describe('API tests', () => {
                         .get('/rides')
                         .expect(200, done);
                 })
+        });
+
+        it('should return correctly paged result', (done) => {
+            let payload = {
+                start_lat: 90,
+                start_long: 170.7893,
+                end_lat: 89.191,
+                end_long: 170.7893,
+                rider_name: 'Jhon',
+                driver_name: 'Doe',
+                driver_vehicle: 'Yamaha'
+            }
+            async.series([
+                (cb) => {request(app).post('/rides').send(payload).expect(201, cb)},
+                (cb) => {request(app).post('/rides').send(payload).expect(201, cb)},
+                (cb) => {request(app).post('/rides').send(payload).expect(201, cb)},
+                (cb) => {request(app).post('/rides').send(payload).expect(201, cb)},
+                ]
+            ).then(() => {
+                request(app)
+                    .get('/rides?perPage=2&pageNo=0')
+                    .expect((res) =>{
+                        assert(res.status, 200)
+                        assert(res.body.length, 2)
+                        assert(res.body[0].rideID, 1)
+                    })
+                    .end(done)
+            });
         });
     });
 
