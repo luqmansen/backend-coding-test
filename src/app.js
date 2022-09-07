@@ -1,15 +1,24 @@
 'use strict';
 
 const express = require('express');
-const app = express();
-
+const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
+const swaggerUi = require('swagger-ui-express');
+
+const swaggerFile = require('../swagger.json');
+const rideService = require('./ride');
+
+const app = express();
 const jsonParser = bodyParser.json();
-const swaggerUi = require('swagger-ui-express')
-const swaggerFile = require('../swagger.json')
-const rideService = require('./ride')
+
+const limiter = rateLimit({
+    windowMs: 2 * 60 * 1000, // 2 min
+    max: 100, // max 100 req/2min
+})
 
 module.exports = (db) => {
+
+    app.use("/", limiter)
 
     app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
