@@ -16,13 +16,13 @@ const migrateUp = (db) => {
         )
     `;
 
-    db.run(createRideTableSchema);
+    db.exec(createRideTableSchema);
 
     return db;
 };
 
 const migrateDown = (db) => {
-    db.run("DROP TABLE RIDES")
+    db.exec("DROP TABLE RIDES")
 }
 
 module.exports = {migrateUp, migrateDown}

@@ -49,23 +49,17 @@
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "schema": {
               "$ref": "#/definitions/CreateRideResponse"
             },
             "description": "Success create rider response."
           },
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
           "500": {
-            "description": "Internal server error.",
             "schema": {
               "$ref": "#/definitions/Error"
-            }
+            },
+            "description": "Internal server error."
           }
         }
       },
@@ -88,19 +82,16 @@
         ],
         "responses": {
           "200": {
-            "description": "Success get list of rides.",
             "schema": {
               "$ref": "#/definitions/RidesResponse"
-            }
-          },
-          "404": {
-            "description": "Not Found"
+            },
+            "description": "Success get list of rides."
           },
           "500": {
-            "description": "Internal server error.",
             "schema": {
               "$ref": "#/definitions/Error"
-            }
+            },
+            "description": "Internal server error."
           }
         }
       }
@@ -121,16 +112,16 @@
         ],
         "responses": {
           "200": {
-            "description": "Success get list of rides.",
             "schema": {
               "$ref": "#/definitions/RideResponse"
-            }
+            },
+            "description": "Success get list of rides."
           },
           "404": {
-            "description": "Ride not found.",
             "schema": {
               "$ref": "#/definitions/Error"
-            }
+            },
+            "description": "Ride not found."
           },
           "500": {
             "schema": {

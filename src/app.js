@@ -5,9 +5,9 @@ const app = express();
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
-const logger = require('./logger')
 const swaggerUi = require('swagger-ui-express')
 const swaggerFile = require('../swagger.json')
+const rideService = require('./ride')
 
 module.exports = (db) => {
 
@@ -20,7 +20,7 @@ module.exports = (db) => {
         res.send('Healthy')
     });
 
-    app.post('/rides', jsonParser, (req, res) => {
+    app.post('/rides', jsonParser, async (req, res) => {
         /*
          #swagger.tags = ['ride']
          #swagger.description = 'To update information of current rides'
@@ -30,7 +30,7 @@ module.exports = (db) => {
            required: true,
            schema: { $ref: "#/definitions/CreateRide" }
          }
-         #swagger.responses[200] = {
+         #swagger.responses[201] = {
                 schema: { $ref: "#/definitions/CreateRideResponse" },
                 description: 'Success create rider response.'
             },
@@ -40,75 +40,22 @@ module.exports = (db) => {
          }
         */
 
-        const startLatitude = Number(req.body.start_lat);
-        const startLongitude = Number(req.body.start_long);
-        const endLatitude = Number(req.body.end_lat);
-        const endLongitude = Number(req.body.end_long);
-        const riderName = req.body.rider_name;
-        const driverName = req.body.driver_name;
-        const driverVehicle = req.body.driver_vehicle;
-
-        if (startLatitude < -90 || startLatitude > 90 || startLongitude < -180 || startLongitude > 180) {
-            return res.status(400).send({
-                error_code: 'VALIDATION_ERROR',
-                message: 'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'
-            });
+        const payload = {
+            startLatitude: Number(req.body.start_lat),
+            startLongitude: Number(req.body.start_long),
+            endLatitude: Number(req.body.end_lat),
+            endLongitude: Number(req.body.end_long),
+            riderName: req.body.rider_name,
+            driverName: req.body.driver_name,
+            driverVehicle: req.body.driver_vehicle,
         }
 
-        if (endLatitude < -90 || endLatitude > 90 || endLongitude < -180 || endLongitude > 180) {
-            return res.status(400).send({
-                error_code: 'VALIDATION_ERROR',
-                message: 'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'
-            });
-        }
+        const {code, body} = await rideService.createRide(db, payload)
 
-        if (typeof riderName !== 'string' || riderName.length < 1) {
-            return res.status(400).send({
-                error_code: 'VALIDATION_ERROR',
-                message: 'Rider name must be a non empty string'
-            });
-        }
-
-        if (typeof driverName !== 'string' || driverName.length < 1) {
-            return res.status(400).send({
-                error_code: 'VALIDATION_ERROR',
-                message: 'Rider name must be a non empty string'
-            });
-        }
-
-        if (typeof driverVehicle !== 'string' || driverVehicle.length < 1) {
-            return res.status(400).send({
-                error_code: 'VALIDATION_ERROR',
-                message: 'Rider name must be a non empty string'
-            });
-        }
-
-        var values = [req.body.start_lat, req.body.start_long, req.body.end_lat, req.body.end_long, req.body.rider_name, req.body.driver_name, req.body.driver_vehicle];
-        
-        const result = db.run('INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)', values, function (err) {
-            if (err) {
-                logger.error(err.message)
-                return res.status(500).send({
-                    error_code: 'SERVER_ERROR',
-                    message: 'Unknown error'
-                });
-            }
-
-            db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, function (err, rows) {
-                if (err) {
-                    logger.error(err.message)
-                    return res.status(500).send({
-                        error_code: 'SERVER_ERROR',
-                        message: 'Unknown error'
-                    });
-                }
-
-                res.status(201).send(rows);
-            });
-        });
+        res.status(code).send(body)
     });
 
-    app.get('/rides', (req, res) => {
+    app.get('/rides', async (req, res) => {
         /*
          #swagger.tags = ['ride']
          #swagger.description = 'To retrieve information about multiple rides'
@@ -124,30 +71,14 @@ module.exports = (db) => {
 
         const limit = req.query.perPage || 10
         const offset = req.query.pageNo || 0
-        const query = `SELECT * FROM Rides LIMIT ${limit} OFFSET ${offset}`
-        logger.debug(query)
 
-        db.all(query, function (err, rows) {
-            if (err){
-                logger.error(err.message)
-                return res.status(500).send({
-                    error_code: 'SERVER_ERROR',
-                    message: 'Unknown error'
-                });
-            }
+        const {code, body} = await rideService.getRides(db, limit, offset)
 
-            if (rows.length === 0) {
-                return res.status(404).send({
-                    error_code: 'RIDES_NOT_FOUND_ERROR',
-                    message: 'Could not find any rides'
-                });
-            }
+        res.status(code).send(body)
 
-            res.send(rows);
-        });
     });
 
-    app.get('/rides/:id', (req, res) => {
+    app.get('/rides/:id', async (req, res) => {
         /*
          #swagger.tags = ['ride']
          #swagger.description = 'To retrieve information about specific rides'
@@ -164,24 +95,10 @@ module.exports = (db) => {
                  description: 'Internal server error.'
          }
         */
-        db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function (err, rows) {
-            if (err) {
-                logger.error(err.message)
-                return res.send({
-                    error_code: 'SERVER_ERROR',
-                    message: 'Unknown error'
-                });
-            }
 
-            if (rows.length === 0) {
-                return res.status(404).send({
-                    error_code: 'RIDES_NOT_FOUND_ERROR',
-                    message: 'Could not find any rides'
-                });
-            }
+        const {code, body} = await rideService.getRideByID(db, req.params.id)
+        res.status(code).send(body)
 
-            res.send(rows);
-        });
     });
 
     return app;
