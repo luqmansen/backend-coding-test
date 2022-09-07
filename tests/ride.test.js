@@ -131,6 +131,11 @@ describe('Ride Service tests', () => {
     });
 
     describe('getRides', () => {
+        it('return server error when given bad param', async () => {
+            const res = await getRides(db, '10', "10 OR 1=1")
+            assert.equal(res.code, 500)
+        });
+
         it('empty rides, should return empty array', async () => {
             const res = await getRides(db, 10, 10)
             assert.deepEqual(res.body, [])
