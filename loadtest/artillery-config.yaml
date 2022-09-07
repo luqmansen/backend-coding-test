@@ -1,0 +1,42 @@
+config:
+  target: "http://localhost:8099"
+  phases:
+    - duration: 30
+      arrivalRate: 100
+  processor: "processor.js"
+  ensure:
+    p99: 50
+
+scenarios:
+  - name: "health check"
+    flow:
+      - get:
+          url: "/health"
+
+  - name: "get rides"
+    flow:
+      - get:
+          beforeRequest: getLimitAndOffset
+          url: "/rides?perPage={{ perPage }}&pageNo={{ pageNo }}"
+          capture:
+            - json: "$"
+              as: "resources"
+
+      - get:
+          beforeRequest: setRideID
+          url: "/rides/{{ rideID }}"
+
+
+  - name: "create new rides"
+    flow:
+      - post:
+          beforeRequest: generateRidePayload
+          url: "/rides"
+          json:
+            start_lat: "{{ start_lat }}"
+            start_long: "{{ start_long }}"
+            end_lat: "{{ end_lat }}"
+            end_long: "{{ end_long }}"
+            rider_name: "{{ rider_name }}"
+            driver_name: "{{ driver_name }}"
+            driver_vehicle: "{{ driver_vehicle }}"
