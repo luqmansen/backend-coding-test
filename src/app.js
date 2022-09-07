@@ -13,7 +13,13 @@ const jsonParser = bodyParser.json();
 
 const limiter = rateLimit({
     windowMs: 2 * 60 * 1000, // 2 min
-    max: 100, // max 100 req/2min
+    max: async (req, _) => {
+        // only limit post request
+        if (req.method === "POST") {
+            return 100
+        }
+        return 0
+    }
 })
 
 module.exports = (db) => {
