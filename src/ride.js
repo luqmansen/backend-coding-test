@@ -80,7 +80,7 @@ const createRide = async (db, payload) => {
 
 const getRideByID = async (db, id) => {
     try {
-        const rows = await db.get(`SELECT * FROM Rides WHERE rideID='${id}'`)
+        const rows = await db.get('SELECT * FROM Rides WHERE rideID = ?', id)
         if (rows === undefined) {
             return {
                 code: 404, body: {
@@ -100,10 +100,10 @@ const getRideByID = async (db, id) => {
 }
 
 const getRides = async (db, limit, offset) => {
-    const query = `SELECT * FROM Rides LIMIT ${limit} OFFSET ${offset}`
+    const query = "SELECT * FROM Rides LIMIT ? OFFSET ?"
 
     try {
-        const rows = await db.all(query)
+        const rows = await db.all(query, limit, offset)
         return {code: 200, body: rows}
 
     } catch (err) {
