@@ -100,6 +100,19 @@ const getRideByID = async (db, id) => {
 }
 
 const getRides = async (db, limit, offset) => {
+
+    // validation is commented to demonstrate that this query is safe from sql injection
+
+    // limit = parseInt(limit)
+    // offset = parseInt(offset)
+    // if (typeof limit !== 'number' || typeof offset !== 'number' || isNaN(offset) || isNaN(limit)) {
+    //     return {
+    //         code: 400, body: {
+    //             error_code: 'BAD_REQUEST', message: 'Invalid params type'
+    //         }
+    //     }
+    // }
+
     const query = "SELECT * FROM Rides LIMIT ? OFFSET ?"
 
     try {
